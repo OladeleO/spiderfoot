@@ -23,8 +23,8 @@ jobs:
       with:
         #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
         image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
-        scan-type: 'fs'
-        ignore-unfixed: true
+        #scan-type: 'fs'
+        #ignore-unfixed: true
         format: 'template'
         #format: 'table'
         template: '@/contrib/sarif.tpl'
