@@ -19,7 +19,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: gcr.io/mythic-inn-323010/spiderfoot-img:002c1d795597ac792e4a9e3f33f7c0db4a9acc0a
+          image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
