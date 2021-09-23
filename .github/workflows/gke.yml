@@ -63,6 +63,22 @@ jobs:
     - name: Publish
       run: |-
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+        
+        
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: "gcr.io/$PROJECT_ID/$IMAGE"
+        format: 'template'
+        template: '@/contrib/sarif.tpl'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: 'trivy-results.sarif' 
+        
+        
     # Set up kustomize
     - name: Set up Kustomize
       run: |-
