@@ -73,15 +73,15 @@ jobs:
         gcloud --quiet beta container images describe "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --show-package-vulnerability > scanreport.txt
     - uses: actions/upload-artifact@v2
       with:
-        path: ${{github.workspace}}   
+        path: ${{github.workspace}}/docs/   
         
         
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
         #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
-        image-ref: "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
-        #scan-type: 'fs'
+        image-ref: gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA
+        scan-type: 'fs'
         ignore-unfixed: true
         #format: 'template'
         format: 'table'
