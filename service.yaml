@@ -6,7 +6,7 @@ spec:
   type: LoadBalancer
   ports:
     - name: webapp
-      port: 5100
+      port: 5001
   selector:
     app: spiderfoot
 
