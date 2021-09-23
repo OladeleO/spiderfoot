@@ -22,7 +22,7 @@ jobs:
       uses: aquasecurity/trivy-action@master
       with:
         #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
-        image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
+        image-ref: gcr.io/mythic-inn-323010/spiderfoot-img:e601bf4c01bdadac434196dfa8128785ff58f03b
         #scan-type: 'fs'
         #ignore-unfixed: true
         format: 'template'
