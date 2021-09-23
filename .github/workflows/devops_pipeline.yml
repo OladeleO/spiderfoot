@@ -126,11 +126,11 @@ jobs:
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -o wide
    
-  deploy-to-gke:
-    needs: [setup-build] 
-    name: Publish, and Deploy
-    runs-on: ubuntu-latest
-    environment: production       
+#  deploy-to-gke:
+#    needs: [setup-build] 
+#    name: Publish, and Deploy
+#    runs-on: ubuntu-latest
+#    environment: production       
     
     #steps:
 
