@@ -64,6 +64,7 @@ jobs:
       IMAGE: spiderfoot-img
 
   setup-build-publish-deploy:
+    needs: [terraform]
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
     environment: production
@@ -111,6 +112,8 @@ jobs:
     - name: Publish
       run: |-
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+        
+        
     # Set up kustomize
     - name: Set up Kustomize
       run: |-
