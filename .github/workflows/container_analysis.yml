@@ -23,4 +23,4 @@ jobs:
         gcloud --quiet beta container images describe gcr.io/mythic-inn-323010/spiderfoot-img@sha256:f84e2bcf622f1bb471b3117e327af8c4f3c525353a910ce9ec6ad3e6b192dc44 --show-package-vulnerability > scanreport.txt
     - uses: actions/upload-artifact@v2
       with:
-        path: scanreport.txt
+        path: ${{github.workspace}}
