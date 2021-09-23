@@ -64,19 +64,30 @@ jobs:
       run: |-
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
         
+    - name: sast
+      uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }} 
+    - run: |-
+        gcloud --quiet beta container images describe "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --show-package-vulnerability > scanreport.txt
+    - uses: actions/upload-artifact@v2
+      with:
+        path: ${{github.workspace}}   
+        
         
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
         #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
-        image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
-        scan-type: 'fs'
+        image-ref: "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+        #scan-type: 'fs'
         ignore-unfixed: true
         #format: 'template'
         format: 'table'
         template: '@/contrib/sarif.tpl'
         output: 'trivy-results.sarif'
-        severity: 'CRITICAL,HIGH,MEDIUM'
+        severity: 'CRITICAL,HIGH,MEDIUM,LOW,INFO'
 
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v1
