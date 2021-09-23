@@ -106,14 +106,7 @@ jobs:
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           .
-   
-  deploy-to-gke:
-    needs: [setup-build] 
-    name: Publish, and Deploy
-    runs-on: ubuntu-latest
-    environment: production       
-    
-    steps:
+          
     # Push the Docker image to Google Container Registry
     - name: Publish
       run: |-
@@ -132,3 +125,12 @@ jobs:
         ./kustomize build . | kubectl apply -f -
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -o wide
+   
+  deploy-to-gke:
+    needs: [setup-build] 
+    name: Publish, and Deploy
+    runs-on: ubuntu-latest
+    environment: production       
+    
+    #steps:
+
