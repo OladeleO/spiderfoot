@@ -1,4 +1,4 @@
-name: GKE
+name: Trivy
 
 on:
   release:
