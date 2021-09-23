@@ -1,0 +1,35 @@
+name: GKE
+
+on:
+  release:
+    types: [push]
+    
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: padsop-cluster-spiderfoot    # TODO: update to cluster name
+  GKE_ZONE: europe-west1-b   # TODO: update to cluster zone
+  DEPLOYMENT_NAME: spiderfoot-gke-deployment # TODO: update to deployment name
+  IMAGE: spiderfoot-img
+
+jobs:
+  sast-scan:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
+        image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
+        scan-type: 'fs'
+        ignore-unfixed: true
+        #format: 'template'
+        format: 'table'
+        template: '@/contrib/sarif.tpl'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: 'trivy-results.sarif' 
