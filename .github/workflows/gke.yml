@@ -70,9 +70,12 @@ jobs:
       with:
         #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
         image: gcr.io/mythic-inn-323010/spiderfoot-img
+        scan-type: 'fs'
+        ignore-unfixed: true
         format: 'template'
         template: '@/contrib/sarif.tpl'
         output: 'trivy-results.sarif'
+        severity: 'CRITICAL'
 
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v1
