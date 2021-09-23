@@ -61,7 +61,7 @@ jobs:
         GOOGLE_CREDENTIALS: ${{ secrets.GKE_SA_KEY }}
         
 
-  setup-build-publish:
+  setup-build:
     #needs: [terraform]
     name: Setup, Build, Publish
     runs-on: ubuntu-latest
@@ -112,7 +112,7 @@ jobs:
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
    
   deploy-to-gke:
-    needs: [terraform]
+    needs: [terraform,setup-build] 
     name: Publish, and Deploy
     runs-on: ubuntu-latest
     environment: production       
