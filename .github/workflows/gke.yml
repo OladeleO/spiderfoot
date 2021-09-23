@@ -83,8 +83,8 @@ jobs:
         image-ref: gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA
         scan-type: 'fs'
         ignore-unfixed: true
-        #format: 'template'
-        format: 'table'
+        format: 'template'
+        #format: 'table'
         template: '@/contrib/sarif.tpl'
         output: 'trivy-results.sarif'
         severity: 'CRITICAL,HIGH,MEDIUM,LOW,INFO'
