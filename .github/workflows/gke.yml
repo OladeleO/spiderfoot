@@ -72,7 +72,8 @@ jobs:
         image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
         scan-type: 'fs'
         ignore-unfixed: true
-        format: 'template'
+        #format: 'template'
+        format: 'table'
         template: '@/contrib/sarif.tpl'
         output: 'trivy-results.sarif'
         severity: 'CRITICAL,HIGH,MEDIUM'
