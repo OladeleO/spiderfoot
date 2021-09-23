@@ -62,7 +62,7 @@ jobs:
         
 
   setup-build:
-    #needs: [terraform]
+    needs: [terraform]
     name: Setup, Build, Publish
     runs-on: ubuntu-latest
     environment: production
@@ -112,7 +112,7 @@ jobs:
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
    
   deploy-to-gke:
-    needs: [terraform,setup-build] 
+    needs: [setup-build] 
     name: Publish, and Deploy
     runs-on: ubuntu-latest
     environment: production       
