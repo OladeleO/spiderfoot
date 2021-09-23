@@ -1,0 +1,4 @@
+#The order in which the Kubernetes resources should be installed 
+resources:
+- deployment.yaml
+- service.yaml
