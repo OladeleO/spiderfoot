@@ -121,3 +121,9 @@ jobs:
         ./kustomize build . | kubectl apply -f -
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -o wide
+        
+    - name: ZAP Scan Webgoat
+      uses: zaproxy/action-baseline@v0.4.0
+      with:
+      #IP address need to be updated dynamicaly
+        target: 'http://34.78.107.234:5009'
