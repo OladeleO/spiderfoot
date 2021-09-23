@@ -73,7 +73,22 @@ jobs:
         gcloud --quiet beta container images describe "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --show-package-vulnerability > scanreport.txt
     - uses: actions/upload-artifact@v2
       with:
-        path: ${{github.workspace}}/docs/   
+        path: ${{github.workspace}}/docs/
+        
+    - name: Depcheck
+      uses: dependency-check/Dependency-Check_Action@main
+      id: Depcheck
+      with:
+        project: 'test'
+        path: '.'
+        format: 'HTML'    
+        others: ''
+    # Upload the artifacts to github
+    - name: Upload Test results
+      uses: actions/upload-artifact@master
+      with:
+         name: Depcheck report
+         path: ${{github.workspace}}/reports
         
         
     - name: Run Trivy vulnerability scanner
