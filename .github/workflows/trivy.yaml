@@ -23,7 +23,7 @@ jobs:
       with:
         #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
         image-ref: gcr.io/mythic-inn-323010/spiderfoot-img:002c1d795597ac792e4a9e3f33f7c0db4a9acc0a
-        #scan-type: 'fs'
+        scan-type: 'fs'
         #ignore-unfixed: true
         format: 'template'
         #format: 'table'
