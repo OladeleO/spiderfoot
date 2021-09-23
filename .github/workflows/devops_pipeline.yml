@@ -11,7 +11,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: padsop-spiderfoot-cluster    # TODO: update to cluster name
+  GKE_CLUSTER: padsop-cluster-spiderfoot    # TODO: update to cluster name
   GKE_ZONE: europe-west1-b   # TODO: update to cluster zone
   DEPLOYMENT_NAME: spiderfoot-gke-deployment # TODO: update to deployment name
   IMAGE: spiderfoot-img
@@ -61,9 +61,9 @@ jobs:
         GOOGLE_CREDENTIALS: ${{ secrets.GKE_SA_KEY }}
         
 
-  setup-build-publish-deploy:
-    needs: [terraform]
-    name: Setup, Build, Publish, and Deploy
+  setup-build-publish:
+    #needs: [terraform]
+    name: Setup, Build, Publish
     runs-on: ubuntu-latest
     environment: production
 
@@ -110,8 +110,14 @@ jobs:
     - name: Publish
       run: |-
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
-        
-        
+   
+  deploy-to-gke:
+    needs: [terraform]
+    name: Publish, and Deploy
+    runs-on: ubuntu-latest
+    environment: production       
+    
+    steps:
     # Set up kustomize
     - name: Set up Kustomize
       run: |-
