@@ -9,7 +9,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: padsop-spiderfoot-cluster    # TODO: update to cluster name
+  GKE_CLUSTER: padsop-cluster-spiderfoot    # TODO: update to cluster name
   GKE_ZONE: europe-west1-b   # TODO: update to cluster zone
   DEPLOYMENT_NAME: spiderfoot-gke-deployment # TODO: update to deployment name
   IMAGE: spiderfoot-img
