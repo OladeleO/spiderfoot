@@ -15,6 +15,44 @@ env:
   IMAGE: spiderfoot-img
 
 jobs:
+
+
+  anchore-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Container image
+        run: docker build . --file Dockerfile --tag localbuild/spiderfoot-to-scan:latest
+      - uses: anchore/scan-action@v3
+        id: scan
+        with:
+          image: "localbuild/spiderfoot-to-scan:latest"
+          acs-report-enable: true
+      - name: upload Anchore scan SARIF report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+          
+          
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
+          image-ref: "localbuildspiderfoot-to-scan:latest"
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'template'
+          #format: 'table'
+          template: '@/contrib/sarif.tpl'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: 'trivy-results.sarif' 
+          
+          
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
@@ -63,18 +101,7 @@ jobs:
     - name: Publish
       run: |-
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
-        
-
-    - uses: anchore/scan-action@v3
-      id: anchore-scan
-      with:
-          image: "gcr.io/$PROJECT_ID/spiderfoot-img"
-          acs-report-enable: true
-    - name: upload Anchore scan SARIF report
-      uses: github/codeql-action/upload-sarif@v1
-      with:
-          sarif_file: ${{ steps.scan.outputs.sarif }}
-        
+                
     - name: sast
       uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
       with:
@@ -99,26 +126,6 @@ jobs:
       with:
          name: Depcheck report
          path: '.'
-        
-        
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
-        image-ref: gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA
-        scan-type: 'fs'
-        ignore-unfixed: true
-        format: 'template'
-        #format: 'table'
-        template: '@/contrib/sarif.tpl'
-        output: 'trivy-results.sarif'
-        severity: 'CRITICAL,HIGH,MEDIUM,LOW,INFO'
-
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v1
-      with:
-        sarif_file: 'trivy-results.sarif' 
-        
         
     # Set up kustomize
     - name: Set up Kustomize
