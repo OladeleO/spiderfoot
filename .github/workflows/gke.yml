@@ -57,11 +57,16 @@ jobs:
         with:
           image: "localbuild/spiderfoot-to-scan:latest"
           acs-report-enable: true
-      - name: upload Anchore scan SARIF report
-        uses: github/codeql-action/upload-sarif@v1
+#      - name: upload Anchore scan SARIF report
+#        uses: github/codeql-action/upload-sarif@v1
+#        with:
+#          #sarif_file: ${{ steps.scan.outputs.sarif }}
+#          sarif_file: anchore-scan-results.sarif
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
         with:
-          #sarif_file: ${{ steps.scan.outputs.sarif }}
-          sarif_file: anchore-scan-results.sarif
+           name: Anchore Scan
+           path: './reports'
           
 
   trivy-scan:
@@ -84,10 +89,16 @@ jobs:
             output: 'trivy-results.sarif'
             severity: 'CRITICAL,HIGH,MEDIUM,LOW'
 
-        - name: Upload Trivy scan results to GitHub Security tab
-          uses: github/codeql-action/upload-sarif@v1
+        #- name: Upload Trivy scan results to GitHub Security tab
+        #  uses: github/codeql-action/upload-sarif@v1
+        #  with:
+        #    sarif_file: trivy-scan-results.sarif 
+        
+        - name: Upload Test results
+          uses: actions/upload-artifact@master
           with:
-            sarif_file: trivy-scan-results.sarif 
+             name: Trivy Scan
+             path: './reports'
           
           
   setup-build-publish-deploy:
