@@ -88,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
            name: anchore-scan-report
-           path: ${{github.workspace}}/reports
+           path: ${{github.workspace}}
           
 
   trivy-scan:
@@ -120,7 +120,7 @@ jobs:
           uses: actions/upload-artifact@master
           with:
              name: trivy-scan-report
-             path: ${{github.workspace}}/reports
+             path: ${{github.workspace}}
           
           
   setup-build-publish-deploy:
