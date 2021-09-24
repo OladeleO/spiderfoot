@@ -16,14 +16,14 @@ env:
 
 jobs:
 
-#  sensitive-info-check:
-#    runs-on: ubuntu-latest
-#    name: sensitive-info-check
-#    steps:  
-#    - name: Checkout
-#      uses: actions/checkout@master
-#    - name: Check password
-#      uses: AlicanAkkus/pinder-action@0.1
+  sensitive-info-check:
+    runs-on: ubuntu-latest
+    name: sensitive-info-check
+    steps:  
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Check password
+      uses: AlicanAkkus/pinder-action@0.1
 
 #  dependency-check:
 #    runs-on: ubuntu-latest
@@ -39,11 +39,11 @@ jobs:
 #        path: '.'
 #        format: 'HTML'    
     # Upload the artifacts to github
-#    - name: Upload Test results
-#      uses: actions/upload-artifact@master
-#      with:
-#         name: Depcheck report
-#         path: './reports'
+    - name: Upload Test results
+      uses: actions/upload-artifact@master
+      with:
+         name: Depcheck report
+         path: './reports'
 
 
   anchore-scan:
