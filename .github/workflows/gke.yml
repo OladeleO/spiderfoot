@@ -81,7 +81,7 @@ jobs:
           with:
             #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
             image-ref: "localbuild/spiderfoot-to-scan:latest"
-            #scan-type: 'fs'
+            scan-type: 'image'
             ignore-unfixed: true
             format: 'template'
             #format: 'table'
@@ -89,16 +89,16 @@ jobs:
             output: 'trivy-results.sarif'
             severity: 'CRITICAL,HIGH,MEDIUM,LOW'
 
-        #- name: Upload Trivy scan results to GitHub Security tab
-        #  uses: github/codeql-action/upload-sarif@v1
-        #  with:
-        #    sarif_file: trivy-scan-results.sarif 
-        
-        - name: Upload Test results
-          uses: actions/upload-artifact@master
+        - name: Upload Trivy scan results to GitHub Security tab
+          uses: github/codeql-action/upload-sarif@v1
           with:
-             name: trivy-scan-report
-             path: '.'
+            sarif_file: trivy-scan-results.sarif 
+        
+   #     - name: Upload Test results
+   #       uses: actions/upload-artifact@master
+   #       with:
+   #          name: trivy-scan-report
+   #          path: '.'
           
           
   setup-build-publish-deploy:
