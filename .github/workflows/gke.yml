@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     name: sensitive-info-check
     steps:  
-    - name: sensitive-info-check
+    - name: Checkout
       uses: actions/checkout@master
     - name: Check password
       uses: AlicanAkkus/pinder-action@0.1
