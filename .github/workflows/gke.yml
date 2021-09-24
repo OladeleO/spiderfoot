@@ -38,7 +38,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
-          image-ref: "localbuildspiderfoot-to-scan:latest"
+          image-ref: "localbuild/spiderfoot-to-scan:latest"
           #scan-type: 'fs'
           ignore-unfixed: true
           format: 'template'
