@@ -16,6 +16,44 @@ env:
 
 jobs:
 
+
+  compliancesecuritycheck:
+  # This job aims to scan the terraform file for security issue as compliance as code
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Test with Checkov
+        run: |
+          pip install checkov
+          checkov -d .
+  
+  
+  dockersecuritycheck:
+  # this job is for vulnerability scan in our web application
+        runs-on: ubuntu-latest
+        name: sast_dockercheck
+        steps:
+        # Setup gcloud CLI
+        - name: Setup gcloud CLI
+          uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+          with:
+            service_account_key: ${{ secrets.GKE_SA_KEY }}
+            project_id: ${{ secrets.GKE_PROJECT }} 
+        - run: |-
+            gcloud --quiet beta container images describe gcr.io/feisty-port-322217/goatandwolf@sha256:35bff1cdb7f22c658075a6aab44577f491692f9bce307f9ee28100881e0c08fa --show-package-vulnerability > scanreport.txt
+        - uses: actions/upload-artifact@v2
+          with:
+            path: scanreport.txt
+            
+            
+          
   sensitive-info-check:
     runs-on: ubuntu-latest
     name: sensitive-info-check
