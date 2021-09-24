@@ -73,15 +73,15 @@ jobs:
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
         with:
-          project: 'test'
+          project: 'spiderfoot'
           path: '.'
           format: 'HTML'    
     # Upload the artifacts to github
-#      - name: Upload Test results
-#        uses: actions/upload-artifact@master
-#        with:
-#           name: dependency-check-report
-#           path: '.'
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
+        with:
+           name: dependency-check-report
+           path: ${{github.workspace}}/reports
 
 
   anchore-scan:
@@ -100,11 +100,11 @@ jobs:
 #        with:
 #          #sarif_file: ${{ steps.scan.outputs.sarif }}
 #          sarif_file: anchore-scan-results.sarif
-#      - name: Upload Test results
-#        uses: actions/upload-artifact@master
-#        with:
-#           name: anchore-scan-report
-#           path: '.'
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
+        with:
+           name: anchore-scan-report
+           path: ${{github.workspace}}/reports
           
 
   trivy-scan:
@@ -132,11 +132,11 @@ jobs:
  #         with:
  #           sarif_file: trivy-scan-results.sarif 
         
-   #     - name: Upload Test results
-   #       uses: actions/upload-artifact@master
-   #       with:
-   #          name: trivy-scan-report
-   #          path: '.'
+        - name: Upload Test results
+          uses: actions/upload-artifact@master
+          with:
+             name: trivy-scan-report
+             path: ${{github.workspace}}/reports
           
           
   setup-build-publish-deploy:
