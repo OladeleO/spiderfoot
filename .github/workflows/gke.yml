@@ -47,7 +47,7 @@ jobs:
             service_account_key: ${{ secrets.GKE_SA_KEY }}
             project_id: ${{ secrets.GKE_PROJECT }} 
         - run: |-
-            gcloud --quiet beta container images describe gcr.io/feisty-port-322217/goatandwolf@sha256:35bff1cdb7f22c658075a6aab44577f491692f9bce307f9ee28100881e0c08fa --show-package-vulnerability > scanreport.txt
+            gcloud --quiet beta container images describe gcr.io/$PROJECT_ID/spiderfoot-img@sha256:bd9ec10c50452fad3845cd69dc96bf44094442059a252c49c84e9a3fc5a939be --show-package-vulnerability > scanreport.txt
         - uses: actions/upload-artifact@v2
           with:
             path: scanreport.txt
