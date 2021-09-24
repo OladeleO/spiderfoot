@@ -149,6 +149,7 @@ jobs:
  
  
   owasp-zap-scan:
+    needs: [setup-build-publish-deploy]
     runs-on: ubuntu-latest
     steps: 
     - name: ZAP Scan
