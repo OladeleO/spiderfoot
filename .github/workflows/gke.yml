@@ -42,8 +42,8 @@ jobs:
       - name: Upload Test results
         uses: actions/upload-artifact@master
         with:
-           name: Depcheck report
-           path: './reports'
+           name: dependency-check-report
+           path: '.'
 
 
   anchore-scan:
@@ -65,8 +65,8 @@ jobs:
       - name: Upload Test results
         uses: actions/upload-artifact@master
         with:
-           name: Anchore Scan
-           path: './reports'
+           name: anchore-scan-report
+           path: '.'
           
 
   trivy-scan:
@@ -97,8 +97,8 @@ jobs:
         - name: Upload Test results
           uses: actions/upload-artifact@master
           with:
-             name: Trivy Scan
-             path: './reports'
+             name: trivy-scan-report
+             path: '.'
           
           
   setup-build-publish-deploy:
@@ -150,6 +150,7 @@ jobs:
         gcloud --quiet beta container images describe "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --show-package-vulnerability > scanreport.txt
     - uses: actions/upload-artifact@v2
       with:
+        name: sast-report
         path: '.'
         
     # Set up kustomize
