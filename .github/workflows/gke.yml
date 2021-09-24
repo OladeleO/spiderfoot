@@ -33,24 +33,31 @@ jobs:
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
           
-          
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
-          image-ref: "localbuild/spiderfoot-to-scan:latest"
-          #scan-type: 'fs'
-          ignore-unfixed: true
-          format: 'template'
-          #format: 'table'
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: 'trivy-results.sarif' 
+  trivy-scan:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Build the Container image
+          run: docker build . --file Dockerfile --tag localbuild/spiderfoot-to-scan:latest
+
+        - name: Run Trivy vulnerability scanner
+          uses: aquasecurity/trivy-action@master
+          with:
+            #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
+            image-ref: "localbuild/spiderfoot-to-scan:latest"
+            #scan-type: 'fs'
+            ignore-unfixed: true
+            format: 'template'
+            #format: 'table'
+            template: '@/contrib/sarif.tpl'
+            output: 'trivy-results.sarif'
+            severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+
+        - name: Upload Trivy scan results to GitHub Security tab
+          uses: github/codeql-action/upload-sarif@v1
+          with:
+            sarif_file: 'trivy-results.sarif' 
           
           
   setup-build-publish-deploy:
@@ -139,7 +146,11 @@ jobs:
         ./kustomize build . | kubectl apply -f -
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -o wide
-        
+ 
+ 
+  owasp-zap-scan:
+    runs-on: ubuntu-latest
+    steps: 
     - name: ZAP Scan
       uses: zaproxy/action-baseline@v0.4.0
       with:
