@@ -1,5 +1,11 @@
 name: Anchore
-on: [push]
+  # Allows you to run this workflow manually from the Actions tab
+
+on:
+  release:
+    types: [push]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
