@@ -16,14 +16,14 @@ env:
 
 jobs:
 
-  sensitive-info-check:
-    runs-on: ubuntu-latest
-    name: sensitive-info-check
-    steps:  
-    - name: Checkout
-      uses: actions/checkout@master
-    - name: Check password
-      uses: AlicanAkkus/pinder-action@0.1
+#  sensitive-info-check:
+#    runs-on: ubuntu-latest
+#    name: sensitive-info-check
+#    steps:  
+#    - name: Checkout
+#      uses: actions/checkout@master
+#    - name: Check password
+#      uses: AlicanAkkus/pinder-action@0.1
 
   dependency-check:
     runs-on: ubuntu-latest
