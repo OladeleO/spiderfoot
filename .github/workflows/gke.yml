@@ -16,6 +16,35 @@ env:
 
 jobs:
 
+  sensitive-info-check:
+    runs-on: ubuntu-latest
+    name: sensitive-info-check
+    steps:  
+    - name: sensitive-info-check
+      uses: actions/checkout@master
+    - name: Check password
+      uses: AlicanAkkus/pinder-action@0.1
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    name: dependency-check
+    steps:
+    - name: Checkout
+    - uses: actions/checkout@v2
+    - name: Depcheck
+      uses: dependency-check/Dependency-Check_Action@main
+      id: Depcheck
+      with:
+        project: 'test'
+        path: '.'
+        format: 'HTML'    
+    # Upload the artifacts to github
+    - name: Upload Test results
+      uses: actions/upload-artifact@master
+      with:
+         name: Depcheck report
+         path: './reports'
+
 
   anchore-scan:
     runs-on: ubuntu-latest
@@ -31,7 +60,8 @@ jobs:
       - name: upload Anchore scan SARIF report
         uses: github/codeql-action/upload-sarif@v1
         with:
-          sarif_file: ${{ steps.scan.outputs.sarif }}
+          #sarif_file: ${{ steps.scan.outputs.sarif }}
+          sarif_file: anchore-scan-results.sarif
           
 
   trivy-scan:
@@ -57,7 +87,7 @@ jobs:
         - name: Upload Trivy scan results to GitHub Security tab
           uses: github/codeql-action/upload-sarif@v1
           with:
-            sarif_file: 'trivy-results.sarif' 
+            sarif_file: trivy-scan-results.sarif 
           
           
   setup-build-publish-deploy:
@@ -80,15 +110,6 @@ jobs:
     - run: |-
         gcloud --quiet auth configure-docker
         
-#######################################################################
-
-    - name: sensitive-info-check
-      uses: actions/checkout@master
-    - name: Check password
-      uses: AlicanAkkus/pinder-action@0.1
-
-#######################################################################
-
     # Get the GKE credentials so we can deploy to the cluster
     - uses: google-github-actions/get-gke-credentials@v0.2.1
       with:
@@ -119,20 +140,6 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         path: '.'
-        
-    - name: Depcheck
-      uses: dependency-check/Dependency-Check_Action@main
-      id: Depcheck
-      with:
-        project: 'test'
-        path: '.'
-        format: 'HTML'    
-    # Upload the artifacts to github
-    - name: Upload Test results
-      uses: actions/upload-artifact@master
-      with:
-         name: Depcheck report
-         path: '.'
         
     # Set up kustomize
     - name: Set up Kustomize
