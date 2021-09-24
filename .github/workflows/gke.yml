@@ -64,6 +64,17 @@ jobs:
       run: |-
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
         
+
+    - uses: anchore/scan-action@v3
+      id: anchore-scan
+      with:
+          image: "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+          acs-report-enable: true
+    - name: upload Anchore scan SARIF report
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+        
     - name: sast
       uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
       with:
@@ -127,3 +138,7 @@ jobs:
       with:
       #IP address need to be updated dynamicaly
         target: 'http://34.78.107.234:5009'
+        
+        
+
+
