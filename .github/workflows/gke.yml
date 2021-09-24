@@ -25,25 +25,25 @@ jobs:
 #    - name: Check password
 #      uses: AlicanAkkus/pinder-action@0.1
 
-  dependency-check:
-    runs-on: ubuntu-latest
-    name: dependency-check
-    steps:
-    - name: Checkout
-    - uses: actions/checkout@v2
-    - name: Depcheck
-      uses: dependency-check/Dependency-Check_Action@main
-      id: Depcheck
-      with:
-        project: 'test'
-        path: '.'
-        format: 'HTML'    
+#  dependency-check:
+#    runs-on: ubuntu-latest
+#    name: dependency-check
+#    steps:
+#    - name: Checkout
+#    - uses: actions/checkout@v2
+#    - name: Depcheck
+#      uses: dependency-check/Dependency-Check_Action@main
+#      id: Depcheck
+#      with:
+#        project: 'test'
+#        path: '.'
+#        format: 'HTML'    
     # Upload the artifacts to github
-    - name: Upload Test results
-      uses: actions/upload-artifact@master
-      with:
-         name: Depcheck report
-         path: './reports'
+#    - name: Upload Test results
+#      uses: actions/upload-artifact@master
+#      with:
+#         name: Depcheck report
+#         path: './reports'
 
 
   anchore-scan:
