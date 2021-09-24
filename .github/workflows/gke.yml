@@ -39,7 +39,7 @@ jobs:
         with:
           #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
           image-ref: "localbuildspiderfoot-to-scan:latest"
-          scan-type: 'fs'
+          #scan-type: 'fs'
           ignore-unfixed: true
           format: 'template'
           #format: 'table'
