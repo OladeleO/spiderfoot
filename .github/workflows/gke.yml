@@ -16,23 +16,7 @@ env:
 
 jobs:
 
-
-  compliancesecuritycheck:
-  # This job aims to scan the terraform file for security issue as compliance as code
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.7]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Test with Checkov
-        run: |
-          pip install checkov
-          checkov -d .
+### Add Checkov
   
   
   dockersecuritycheck:
