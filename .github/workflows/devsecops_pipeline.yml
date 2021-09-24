@@ -17,80 +17,98 @@ env:
   IMAGE: spiderfoot-img
 
 jobs:        
-  terraform:
-    name: 'Terraform'
-    runs-on: ubuntu-latest
-    environment: production
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
-      env:
-        GOOGLE_CREDENTIALS: ${{ secrets.GKE_SA_KEY }}      
-
-    # Checks that all Terraform configuration files adhere to a canonical format
-#    - name: Terraform Format
-#      run: terraform fmt -check
-
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform plan
-      env:
-        GOOGLE_CREDENTIALS: ${{ secrets.GKE_SA_KEY }}
-
-      # On push to main, build or change infrastructure according to Terraform configuration files
-      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-    - name: Terraform Apply
-######      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve
-      env:
-        GOOGLE_CREDENTIALS: ${{ secrets.GKE_SA_KEY }}
-
+   
+  sast-docker-check:
+        runs-on: ubuntu-latest
+        name: sast_dockercheck
+        steps:
+        # Setup gcloud CLI
+        - name: Setup gcloud CLI
+          uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+          with:
+            service_account_key: ${{ secrets.GKE_SA_KEY }}
+            project_id: ${{ secrets.GKE_PROJECT }} 
+        - run: |-
+            gcloud --quiet beta container images describe gcr.io/$PROJECT_ID/spiderfoot-img@sha256:bd9ec10c50452fad3845cd69dc96bf44094442059a252c49c84e9a3fc5a939be --show-package-vulnerability > scanreport.txt
+        - uses: actions/upload-artifact@v2
+          with:
+            path: scanreport.txt
+            
+            
+          
   sensitive-info-check:
     runs-on: ubuntu-latest
     name: sensitive-info-check
-    steps:
-        - uses: actions/checkout@master
-        - name: Check password
-          uses: AlicanAkkus/pinder-action@0.1
-          
-#  sast:
-#    needs: [setup-build]
-#    runs-on: ubuntu-latest
-#    name: sast
-#    steps:
-    # Setup gcloud CLI
-#    - name: Setup gcloud CLI
-#      uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
-#      with:
-#        service_account_key: ${{ secrets.GKE_SA_KEY }}
-#        project_id: ${{ secrets.GKE_PROJECT }} 
-#    - run: |-
-#        gcloud --quiet beta container images describe gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA --show-package-vulnerability > scanreport.txt
-#    - uses: actions/upload-artifact@v2
-#      with:
-#        path: scanreport.txt  
-        
-#  saaast:
-#      needs: [steup-build
+    steps:  
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Check password
+      uses: AlicanAkkus/pinder-action@0.1
 
-  setup-build:
-    needs: [terraform]
-    name: Setup, Build
+  dependency-check:
+    runs-on: ubuntu-latest
+    name: dependency-check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Depcheck
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
+        with:
+          project: 'spiderfoot'
+          path: '.'
+          format: 'HTML'    
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
+        with:
+           name: dependency-check-report
+           path: ${{github.workspace}}/reports
+
+
+  anchore-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Container image
+        run: docker build . --file Dockerfile --tag localbuild/spiderfoot-to-scan:latest
+      - uses: anchore/scan-action@v3
+        id: scan
+        with:
+          image: "localbuild/spiderfoot-to-scan:latest"
+          acs-report-enable: true
+      - name: Inspect action SARIF report
+        run: cat ${{ steps.scan.outputs.sarif }}
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
+        with:
+           name: anchore-scan-report
+           path: ${{github.workspace}}
+          
+
+  trivy-scan:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Build the Container image
+          run: docker build . --file Dockerfile --tag localbuild/spiderfoot-to-scan:latest
+
+        - name: Run Trivy vulnerability scanner
+          uses: aquasecurity/trivy-action@master
+          with:
+            #image-ref: gcr.io/mythic-inn-323010/spiderfoot-img
+            image-ref: "localbuild/spiderfoot-to-scan:latest"
+            scan-type: 'image'
+            ignore-unfixed: true
+            #format: 'template'
+            format: 'table'
+            #template: '@/contrib/sarif.tpl'
+            output: 'trivy-results.sarif'
+            severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+        - name: Inspect action SARIF report
+          run: cat ${{ steps.scan.outputs.sarif }}
+          
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
     environment: production
 
@@ -109,12 +127,6 @@ jobs:
     - run: |-
         gcloud --quiet auth configure-docker
         
-#######################################################################
-
-
-
-#######################################################################
-
     # Get the GKE credentials so we can deploy to the cluster
     - uses: google-github-actions/get-gke-credentials@v0.2.1
       with:
@@ -130,31 +142,28 @@ jobs:
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           .
-          
     # Push the Docker image to Google Container Registry
     - name: Publish
       run: |-
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+                
+    - name: sast
+      uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }} 
+    - run: |-
+        gcloud --quiet beta container images describe "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --show-package-vulnerability > scanreport.txt
+    - uses: actions/upload-artifact@v2
+      with:
+        name: sast-report
+        path: '.'
         
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
-        format: 'template'
-        template: '@/contrib/sarif.tpl'
-        output: 'trivy-results.sarif'
-
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v1
-      with:
-        sarif_file: 'trivy-results.sarif'    
-    
     # Set up kustomize
     - name: Set up Kustomize
       run: |-
         curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
         chmod u+x ./kustomize
-    
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
@@ -162,12 +171,13 @@ jobs:
         ./kustomize build . | kubectl apply -f -
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -o wide
-   
-#  deploy-to-gke:
-#    needs: [setup-build] 
-#    name: Publish, and Deploy
-#    runs-on: ubuntu-latest
-#    environment: production       
-    
-    #steps:
-
+ 
+ 
+  owasp-zap-scan:
+    needs: [setup-build-publish-deploy]
+    runs-on: ubuntu-latest
+    steps: 
+    - name: ZAP Scan
+      uses: zaproxy/action-baseline@v0.4.0
+      with:
+        target: 'http://34.140.94.36:5009/'  #Address manually entered...
