@@ -19,7 +19,7 @@ jobs:
 ### Add Checkov
   
   
-  dockersecuritycheck:
+  sast-docker-check:
   # this job is for vulnerability scan in our web application
         runs-on: ubuntu-latest
         name: sast_dockercheck
@@ -201,7 +201,7 @@ jobs:
       uses: zaproxy/action-baseline@v0.4.0
       with:
       #IP address need to be updated dynamicaly
-        target: 'http://34.78.107.234:5009'
+        target: 'http://34.140.94.36:5009/'
         
         
 
